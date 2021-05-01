@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from gym_environments.trading_environment import TradingEnvironment
 from gym_environments.trading_environment_single_indicator import TradingEnvironment_si
+from gym_environments.multi_trading_environment import Multi_TradingEnvironment
 from 
 import backtrader
 
@@ -62,18 +63,20 @@ def generate_training_test_environments_s_i(filename, training_set_size=100, tes
     return training_envs, test_envs
 
 
-def generate_training_test_environments_multi(filename, training_set_size=100, test_set_size=20, *_, seed=None):
+def generate_training_test_environments_multi(filename,tickes_size, training_set_size=100, test_set_size=20, *_, seed=None):
     all_tickers = list(get_tickers_from_csv(filename))
 
-    assert test_set_size < len(all_tickers), 'Test set size >= number of tickers'
+    assert test_set_size*tickes_size < len(all_tickers), 'Test set size >= number of tickers'
 
     random.seed(seed)
     random.shuffle(all_tickers)
     def create_environment():
         while all_tickers:
-            ticker = all_tickers.pop()
+            ticker = []
+            for i in range(tickes_size)
+            ticker.append(all_tickers.pop())
             try:
-                env = TradingEnvironment(ticker)
+                env = Multi_TradingEnvironment(ticker)
                 return env
             except Exception:
                 pass
