@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from utils.get_ticker_file import get_ticker_file
 
-TickerValue = namedtuple('TickerValue', ('price', 'MA', 'EMA', 'MACD', 'RSI'))
+TickerValue = namedtuple('TickerValue', ('price', 'BBPct', 'EMA', 'PPO', 'RSI'))
 TradingState = namedtuple('TradingState', ('money', 'stock_owned') + TickerValue._fields)
 
 default_fromdate = datetime(2018, 1, 1)
@@ -32,18 +32,18 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate):
     # Use backtrader to create ticker values for each day in range
     class TrackValues(bt.Strategy):
         def __init__(self):
-            self.MA = btind.SMA(self.data)
+            self.BBPct = btind.BollingerBandsPct(self.data)
             self.EMA = btind.EMA(self.data)
-            self.MACD = btind.EMA(self.data, period=12) - btind.EMA(self.data, period=26)
+            self.PPO = btind.PPO(self.data)
             self.RSI = btind.RSI_EMA(safediv=True)
 
         def next(self):
             # Data available, put indicators into ticker values
             ticker_value = TickerValue(
                 price=self.data.close[0],
-                MA=self.MA[0],
+                BBPct=self.BBPct[0],
                 EMA=self.EMA[0],
-                MACD=self.MACD[0],
+                PPO=self.PPO[0],
                 RSI=self.RSI[0],
             )
             ticker_values.append(ticker_value)
@@ -164,7 +164,11 @@ class Multi_TradingEnvironment(gym.Env):
                 else:
                     action_invalid = True
 
-        unadjusted_reward = ticker_value[stock_to_act].price * self.stock_owned[stock_to_act] + self.money
+        #unadjusted_reward = ticker_value[stock_to_act].price * self.stock_owned[stock_to_act] + self.money
+
+        unadjusted_reward = self.money
+        for i in range(self.symbol_count):
+            unadjusted_reward += ticker_value[i].price * self.stock_owned[i]
         reward = unadjusted_reward - self.last_reward
         self.last_reward = unadjusted_reward
         # Give large negative reward if action is invalid

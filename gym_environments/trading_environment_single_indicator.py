@@ -59,7 +59,7 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate,i
     cached[ticker] = ticker_values
     return ticker_values
 
-class TradingEnvironment(gym.Env):
+class TradingEnvironment_si(gym.Env):
     """ gym environment that trades a single stock """
     def __init__(self, ticker,indicator, transaction_cost = 0, initial_money=10_000):
         self.ticker = ticker
