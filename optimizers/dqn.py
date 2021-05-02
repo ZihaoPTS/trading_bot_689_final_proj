@@ -1,7 +1,7 @@
 from collections import deque
 import numpy as np
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.losses import Huber
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Model, load_model
@@ -15,7 +15,12 @@ def create_lstm_network(env, *_, lr, layer_nodes, time_steps):
     nA = env.action_space.n
 
     model = Sequential()
+    model.add(LSTM(layer_nodes[0],return_sequences = True, input_shape=(time_steps, state_size)))
+    model.add(Dropout(0.2))
+    model.add(LSTM(layer_nodes[0],return_sequences = True, input_shape=(time_steps, state_size)))
+    model.add(Dropout(0.2))
     model.add(LSTM(layer_nodes[0], input_shape=(time_steps, state_size)))
+    model.add(Dropout(0.2))
     for num_nodes in layer_nodes[1:]:
         model.add(Dense(num_nodes, activation='relu'))
     model.add(Dense(nA, activation='linear'))

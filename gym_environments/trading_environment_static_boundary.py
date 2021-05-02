@@ -91,19 +91,20 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate):
     cached[ticker] = ticker_values
     return ticker_values
 
-class TradingEnvironment(gym.Env):
+class TradingEnvironment_sb(gym.Env):
     """ gym environment that trades a single stock """
-    def __init__(self, ticker, fromdate = default_fromdate, todate = default_todate, transaction_cost = 0.01, initial_money=10_000):
+    def __init__(self, ticker, fromdate = default_fromdate, todate = default_todate, transaction_cost = 0,stop_loss_boundary = 0.3, initial_money=10_000):
         self.ticker = ticker
         self.initial_money = initial_money
         self.transaction_cost = transaction_cost
         self.fromdate = fromdate
         self.todate = todate
+        self.boundary = stop_loss_boundary
 
         # State space: values defined below
         low = np.array([
-            0,       # Stock owned
-            #0,       # avg price
+            0,       # avg bought price
+            #0,       # Stock owned
             0,       # Ticker price
             np.NINF,       # BBPct (BollingerBandsPct)
             0,       # EMA (ExponentialMovingAverage)
@@ -125,7 +126,7 @@ class TradingEnvironment(gym.Env):
         ], dtype=np.float32)
         high = np.array([
             np.inf,
-            #np.inf,       # avg price
+            #np.inf,       
             np.inf,
             np.inf,
             np.inf,
@@ -180,22 +181,39 @@ class TradingEnvironment(gym.Env):
         else:
             # recall Actions: { long, neutral, short }
             # long
+
+            #define static boundary
+            stop_loss_price_up = self.avg_bought_price * (1 + self.boundary)
+            stop_loss_price_down = self.avg_bought_price * (1 - self.boundary)
+
             if action == 0:
                 if self.money >= ticker_value.price:
                     self.money -= ticker_value.price + self.transaction_cost*ticker_value.price
                     self.stock_owned += 1
                     reward = ticker_value.price - self.last_ticker_price - self.transaction_cost*ticker_value.price
+                    self.avg_bought_price = (self.avg_bought_price + ticker_value.price)/self.stock_owned
+                    stop_loss_price_up = self.avg_bought_price * (1 + self.boundary)
+                    #stop_loss_price_down = self.avg_bought_price * (1 - self.boundary)
+                    if self.avg_bought_price >= stop_loss_price_up: # encourage sell when there is 30% profit
+                        reward += (self.avg_bought_price - stop_loss_price_up)
                 else:
                     action_invalid = True
             # neutral
             elif action == 1:
                 reward = self.stock_owned * ticker_value.price + (self.money - self.initial_money)
+                #discrourage hording
+                if self.avg_bought_price >= stop_loss_price_up:
+                    reward -= (self.avg_bought_price - stop_loss_price_up) * self.stock_owned
+                #if self.avg_bought_price <= stop_loss_price_down:
+                #    reward -= (stop_loss_price_up - self.avg_bought_price) * self.stock_owned
             # short
             elif action == 2:
                 if self.stock_owned > 0:
                     self.money += ticker_value.price - self.transaction_cost*ticker_value.price
                     self.stock_owned -= 1
                     reward = self.last_ticker_price - ticker_value.price - self.transaction_cost*ticker_value.price
+                    #if self.avg_bought_price <= stop_loss_price_down:
+                    #    reward -= (stop_loss_price_up - self.avg_bought_price)
                 else:
                     action_invalid = True
 
@@ -221,6 +239,7 @@ class TradingEnvironment(gym.Env):
         self.money = self.initial_money
         self.last_reward = self.initial_money
         self.stock_owned = 0
+        self.avg_bought_price = 0
 
         # State related to stock
         self.trajectory = create_trajectory(self.ticker,self.fromdate,self.todate)

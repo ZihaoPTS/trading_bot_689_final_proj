@@ -12,7 +12,7 @@ from utils.test_model import test_model
 tf.get_logger().setLevel('WARNING')
 
 # Set model name
-model_name = 'trading'
+model_name = 'trading_diff_indic'
 
 # Create training environments
 print('Creating training/test environments...')

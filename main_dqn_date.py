@@ -84,11 +84,11 @@ for i in count(1):
     # Determine test performance
     print('Done training, testing...')
 
-    test_envs = []
-    test = ['IMAX', 'PCG', 'M', 'SHLDQ', 'PCG', 'ANGI', 'ADMS', 'WBA','TSLA', 'AAPL', 'WMT', 'MSFT']
-    for ticker in test:
-        env = TradingEnvironment(ticker,fromdate=test_fromdate,todate=test_todate)
-        test_envs.append(env)
+    #test_envs = []
+    #test = ['IMAX', 'PCG', 'M', 'SHLDQ', 'PCG', 'ANGI', 'ADMS', 'WBA','TSLA', 'AAPL', 'WMT', 'MSFT']
+    #for ticker in test:
+    #    env = TradingEnvironment(ticker,fromdate=test_fromdate,todate=test_todate)
+    #    test_envs.append(env)
 
     test_profit = test_lstm_model(model, test_envs)
 

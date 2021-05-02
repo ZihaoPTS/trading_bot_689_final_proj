@@ -6,21 +6,24 @@ import gym
 import tensorflow as tf
 from data_structures.replay_buffer import ReplayBuffer
 from gym_environments.trading_environment import TradingEnvironment
+from gym_environments.trading_environment_static_boundary import TradingEnvironment_sb
 from optimizers import DQN, load_dqn_model, create_lstm_network
-from utils.generate_tickers import generate_training_test_environments
+from utils.generate_tickers import generate_training_test_environments,generate_training_test_environments_sb
 from utils.test_model import test_lstm_model
 
 tf.get_logger().setLevel('WARNING')
 
 # Param config
-model_name = 'lstm_dqn'
+model_name = 'lstm_dqn_sb'
 num_training = 20
 num_test = 5
 lr = 0.0003
 epsilon = 0.8
-min_epsilon = 0.01
+#min_epsilon = 0.01
+min_epsilon = 0.1
 epsilon_decay = 0.99
-gamma = 0.8
+#gamma = 0.8
+gamma = 0.3
 layer_nodes = [128, 256, 128]
 time_steps = 4
 replay_buffer_size = 1_000_000
@@ -33,7 +36,7 @@ batches_until_target_update = update_target_every
 
 # Create training environments
 print('Creating training/test environments...')
-training_envs, test_envs = generate_training_test_environments('data/ticker_list/nyse-listed.csv', num_training, num_test, seed=0)
+training_envs, test_envs = generate_training_test_environments_sb('data/ticker_list/nyse-listed.csv', num_training, num_test, seed=0)
 print('Done setting up environments.')
 
 # Create model to use across training
@@ -72,6 +75,12 @@ for i in count(1):
         epsilon *= epsilon_decay
         epsilon = max(epsilon, min_epsilon)
     print()
+
+    #test_envs = []
+    #test = ['IMAX', 'M', 'SHLDQ', 'PCG', 'ANGI', 'ADMS', 'WBA','TSLA', 'AAPL', 'WMT', 'MSFT']
+    #for ticker in test:
+    #    env = TradingEnvironment(ticker)
+    #    test_envs.append(env)
 
     # Determine test performance
     print('Done training, testing...')

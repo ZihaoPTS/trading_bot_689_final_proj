@@ -14,3 +14,6 @@ __pycache__
 
 # Ticker data files
 data/tickers
+
+# local dummy file for testing
+test.py

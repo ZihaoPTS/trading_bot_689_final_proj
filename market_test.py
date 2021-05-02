@@ -8,11 +8,13 @@ import numpy as np
 from gym_environments.trading_environment import TradingState
 from optimizers import load_a2c_model, load_a2c_lstm_model, load_dqn_model
 from utils.generate_tickers import generate_training_test_environments
+#from utils.plot_stock import plot_stock
 
 """ Tests an already trained model over a wide range of stocks """
 
 
-model_name = 'lstm_dqn_recent'
+#model_name = 'lstm_dqn_recent'
+model_name = 'lstm_dqn_sb'
 model_is_lstm = True
 model_is_dqn = True
 num_stocks = 10
@@ -115,7 +117,7 @@ class MarketTester:
                 # Manually adjust money and stock owned so that decisions are made off of actual state rather than internal env state
                 s_prime = TradingState(**{
                     **s_prime._asdict(),
-                    'money': self.money,
+                #    'money': self.money,
                     'stock_owned': self.stock_owned[ticker],
                 })
                 if self.model_is_lstm:
