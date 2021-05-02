@@ -6,7 +6,6 @@ import pandas as pd
 from gym_environments.trading_environment import TradingEnvironment
 from gym_environments.trading_environment_single_indicator import TradingEnvironment_si
 from gym_environments.multi_trading_environment import Multi_TradingEnvironment
-from 
 import backtrader
 
 def get_tickers_from_csv(filename):
@@ -73,8 +72,8 @@ def generate_training_test_environments_multi(filename,tickes_size, training_set
     def create_environment():
         while all_tickers:
             ticker = []
-            for i in range(tickes_size)
-            ticker.append(all_tickers.pop())
+            for i in range(tickes_size):
+                ticker.append(all_tickers.pop())
             try:
                 env = Multi_TradingEnvironment(ticker)
                 return env
