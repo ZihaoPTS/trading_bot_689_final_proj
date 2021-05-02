@@ -7,13 +7,16 @@ from gym_environments.trading_environment import TradingEnvironment
 from gym_environments.trading_environment_single_indicator import TradingEnvironment_si
 from gym_environments.multi_trading_environment import Multi_TradingEnvironment
 import backtrader
+from datetime import datetime
+default_fromdate = datetime(2018, 1, 1)
+default_todate = datetime(2021, 4, 1)
 
 def get_tickers_from_csv(filename):
     all_tickers = pd.read_csv(filename, usecols=['ACT Symbol'])
     all_tickers = all_tickers[~all_tickers['ACT Symbol'].str.contains('\$')]
     return all_tickers.values.flatten()
 
-def generate_training_test_environments(filename, training_set_size=100, test_set_size=20, *_, seed=None):
+def generate_training_test_environments(filename, training_set_size=100, test_set_size=20, *_, seed=None, fromdate=default_fromdate, todate=default_todate):
     all_tickers = list(get_tickers_from_csv(filename))
 
     assert test_set_size < len(all_tickers), 'Test set size >= number of tickers'
@@ -24,7 +27,7 @@ def generate_training_test_environments(filename, training_set_size=100, test_se
         while all_tickers:
             ticker = all_tickers.pop()
             try:
-                env = TradingEnvironment(ticker)
+                env = TradingEnvironment(ticker,fromdate=fromdate,todate=todate)
                 return env
             except Exception:
                 pass

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from utils.get_ticker_file import get_ticker_file
 
-TickerValue = namedtuple('TickerValue', ('price', 'BBPct', 'EMA', 'PPO', 'RSI'))
+TickerValue = namedtuple('TickerValue', ('price', 'BBPct', 'EMA', 'PPO', 'RSI','TSI','TRIX','UO','ADX','KST','LAGF','LRSI','MinusDI','MomentumOsc','SMAOsc','PSAR','PGO','RateOfChange100'))
 TradingState = namedtuple('TradingState', ('money', 'stock_owned') + TickerValue._fields)
 
 default_fromdate = datetime(2018, 1, 1)
@@ -38,6 +38,19 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate):
             self.PPO = btind.PPO(self.data)
             # self.MACD = btind.EMA(self.data, period=12) - btind.EMA(self.data, period=26)
             self.RSI = btind.RSI_EMA(safediv=True)
+            self.TSI = btind.TSI(self.data)
+            self.TRIX = btind.TRIX(self.data)
+            self.UO = btind.UltimateOscillator(self.data)
+            self.ADX = btind.ADX(self.data)
+            self.KST = btind.KnowSureThing(self.data)
+            self.LAGF = btind.LaguerreFilter(self.data)
+            self.LRSI = btind.LaguerreRSI(self.data)
+            self.MinusDI = btind.MinusDirectionalIndicator(self.data)
+            self.MomentumOsc = btind.MomentumOscillator(self.data)
+            self.SMAOsc = btind.MovingAverageSimpleOscillator(self.data)
+            self.PSAR = btind.ParabolicSAR(self.data)
+            self.PGO = btind.PrettyGoodOscillator(self.data)
+            self.RateOfChange100 = btind.RateOfChange100(self.data)
 
         def next(self):
             # Data available, put indicators into ticker values
@@ -47,6 +60,19 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate):
                 EMA=self.EMA[0],
                 PPO=self.PPO[0],
                 RSI=self.RSI[0],
+                TSI=self.TSI[0],
+                TRIX=self.TRIX[0],
+                UO=self.UO[0],
+                ADX=self.ADX[0],
+                KST=self.KST[0],
+                LAGF=self.LAGF[0],
+                LRSI=self.LRSI[0],
+                MinusDI=self.MinusDI[0],
+                MomentumOsc=self.MomentumOsc[0],
+                SMAOsc=self.SMAOsc[0],
+                PSAR=self.PSAR[0],
+                PGO=self.PGO[0],
+                RateOfChange100=self.RateOfChange100[0],
             )
             ticker_values.append(ticker_value)
 
@@ -67,10 +93,12 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate):
 
 class TradingEnvironment(gym.Env):
     """ gym environment that trades a single stock """
-    def __init__(self, ticker, transaction_cost = 0, initial_money=10_000):
+    def __init__(self, ticker, fromdate = default_fromdate, todate = default_todate, transaction_cost = 0, initial_money=10_000):
         self.ticker = ticker
         self.initial_money = initial_money
         self.transaction_cost = transaction_cost
+        self.fromdate = fromdate
+        self.todate = todate
 
         # State space: values defined below
         low = np.array([
@@ -81,6 +109,19 @@ class TradingEnvironment(gym.Env):
             0,       # EMA (ExponentialMovingAverage)
             np.NINF, # PPO (PercentagePriceOscillator)
             0,       # RSI (RelativeStrengthIndex)
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
+            np.NINF,
         ], dtype=np.float32)
         high = np.array([
             np.inf,
@@ -90,6 +131,19 @@ class TradingEnvironment(gym.Env):
             np.inf,
             np.inf,
             100,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
         ], dtype=np.float32)
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
@@ -169,7 +223,7 @@ class TradingEnvironment(gym.Env):
         self.stock_owned = 0
 
         # State related to stock
-        self.trajectory = create_trajectory(self.ticker)
+        self.trajectory = create_trajectory(self.ticker,self.fromdate,self.todate)
         assert len(self.trajectory) > 1, 'Cannot create trajectory with a single data point'
         self.position_in_trajectory = 0
 
