@@ -34,10 +34,6 @@ def AO(data):
     return btind.AwesomeOscillator(data)
 def CCI(data):
     return btind.CommodityChannelIndex(data)
-def CrossOver(data):
-    return btind.CrossOver(data)
-def DemarkPivotPoint(data):
-    return btind.DemarkPivotPoint
 def DPO(data):
     return btind.DetrendedPriceOscillator(data)
 def DMA(data):
@@ -69,7 +65,7 @@ def PSAR(data):
     return btind.ParabolicSAR(data)
 def PGO(data):
     return btind.PrettyGoodOscillator(data)
-def ROC100(data):
+def RateOfChange100(data):
     return btind.RateOfChange100(data)
 
 #i think all Osc can only go from -100 to 100, maybe passing observation space as limit might help their performance?
@@ -84,8 +80,6 @@ indicator_dict = {#'BBPct' : BBPct,
                   #'PPO' : PPO,
                   #'AO' : AO,
                   #'CCI' : CCI,
-                  'CrossOver' : CrossOver,
-                  'DemarkPivotPoint' : DemarkPivotPoint,
                   'DPO' : DPO,
                   'DMA' : DMA,
                   'DMI' : DMI
