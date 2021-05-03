@@ -67,10 +67,12 @@ def create_trajectory(ticker, fromdate=default_fromdate, todate=default_todate):
 
 class TradingEnvironment(gym.Env):
     """ gym environment that trades a single stock """
-    def __init__(self, ticker, transaction_cost=0.01, initial_money=10_000):
+    def __init__(self, ticker, fromdate = default_fromdate, todate = default_todate, transaction_cost=0.01, initial_money=10_000):
         self.ticker = ticker
         self.initial_money = initial_money
         self.transaction_cost = transaction_cost
+        self.fromdate = fromdate
+        self.todate = todate
 
         # State space: values defined below
         low = np.array([
@@ -166,7 +168,7 @@ class TradingEnvironment(gym.Env):
         self.stock_owned = 0
 
         # State related to stock
-        self.trajectory = create_trajectory(self.ticker)
+        self.trajectory = create_trajectory(self.ticker,self.fromdate,self.todate)
         assert len(self.trajectory) > 1, 'Cannot create trajectory with a single data point'
         self.position_in_trajectory = 0
 
