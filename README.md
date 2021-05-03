@@ -1,5 +1,7 @@
 # About
 Reinforcement learning-based algorithmic trader made for TAMU's reinforcement learning course.
+Spring 2021 CSCE 689 SPTP Reinforced Learning by Dr. 	Guni Sharon
+
 
 # Installation
 Run the following to setup dependencies, preferably using a virtualenv to avoid dependency issues:
