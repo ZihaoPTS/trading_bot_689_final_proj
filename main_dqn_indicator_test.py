@@ -29,7 +29,43 @@ def TSI(data):
 def AroonUpDownOsc(data):
     return btind.AroonUpDownOsc(data)
 def PPO(data):
-    return btind.PPO(self.data)
+    return btind.PPO(data)
+def AO(data):
+    return btind.AwesomeOscillator(data)
+def CCI(data):
+    return btind.CommodityChannelIndex(data)
+def DPO(data):
+    return btind.DetrendedPriceOscillator(data)
+def DMA(data):
+    return btind.DicksonMovingAverageEnvelope(data)
+def DMI(data):
+    return btind.DirectionalMovementIndex(data)
+def DEMAOsc(data):
+    return btind.DoubleExponentialMovingAverageOscillator(data)
+def FibonacciPivotPoint(data):
+    return btind.FibonacciPivotPoint(data)
+def HMAOsc(data):
+    return btind.HullMovingAverageOscillator(data)
+def Hurst(data):
+    return btind.HurstExponent(data) #dont touch. need 2000+ sample to be stable
+def KST(data):
+    return btind.KnowSureThing(data)
+def LAGF(data):
+    return btind.LaguerreFilter(data)
+def LRSI(data):
+    return btind.LaguerreRSI(data)
+def MinusDI(data):
+    return btind.MinusDirectionalIndicator(data)
+def MomentumOsc(data):
+    return btind.MomentumOscillator(data)
+def SMAOsc(data):
+    return btind.MovingAverageSimpleOscillator(data)
+def PSAR(data):
+    return btind.ParabolicSAR(data)
+def PGO(data):
+    return btind.PrettyGoodOscillator(data)
+def RateOfChange100(data):
+    return btind.RateOfChange100(data)
 
 indicator_dict = {'BBPct' : BBPct,
                   'ADX' : ADX,
@@ -39,6 +75,7 @@ indicator_dict = {'BBPct' : BBPct,
                   'TSI' : TSI,
                   'AroonUpDownOsc' : AroonUpDownOsc,
                   'PPO' : PPO
+                  # addpend more indicators from fucntion above for testing
                     }
 indicator_names = [k for k,v in indicator_dict.items()]
 indicator_list = [v for k,v in indicator_dict.items()]
@@ -116,4 +153,5 @@ for indicator in indicator_list:
         printable.append({indicator_names[k]:v})
     with open("indicator_result.txt","w") as write_file:
         write_file.write(str(printable))
+    training_envs, test_envs = generate_training_test_environments_s_i('data/ticker_list/nyse-listed.csv', num_training, num_test, seed=0,indicator=indicator)
 
